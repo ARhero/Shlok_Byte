@@ -4,7 +4,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "EB Garamond", serif;
+  font-family: "OpenDyslexic", serif;
+  font-size: small;
   color: rgb(72, 30, 14);
 }
 
@@ -103,7 +104,7 @@ body {
   width: 10rem;
   height: 2rem;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   font-weight: 700;
   background-color: rgb(61, 32, 4);
   color: white;

@@ -29,17 +29,11 @@
         <div id="b1" class="back-content kaagaz">
           <div class="about">
             <h1>About the Project</h1>
+            <br>
             <h3>
-              <p>This project aims to convert the "shlokas" or verses of the famous book, Shrimad Bhagavad Gita, into
-                American Sign Language. The Bhagavad Gita, a revered text, offers profound wisdom and teachings that
-                have inspired countless individuals over the centuries. By translating these verses into American Sign
-                Language, we seek to bridge the gap between this timeless knowledge and the differently-abled section of
-                our community.
+              <p>Our project supports individuals with various disabilities by offering features like ASL translation for those with hearing or speaking impairments, speech-to-text and text-to-speech for vision impairments, and the OpenDyslexic font for readers with dyslexia. Additionally, it includes a generative AI feature that provides guidance, drawing from documents such as the Bhagavad Gita.
               </p>
-              <p>Our goal is to ensure that everyone, regardless of their hearing abilities, can access and understand
-                the teachings of the Bhagavad Gita. Through this project, we strive to make spiritual and philosophical
-                knowledge more accessible and inclusive for all.
-              </p>
+              
             </h3>
           </div>
         </div>
@@ -111,9 +105,27 @@
       </div>
       <div class="back">
         <div id="b3" class="back-content kaagaz">
+          <div class="g-div">
+            <input class="g-input" type="text" id="text-box" placeholder="Enter text" />
+            <button class="g-btn" onclick="sendText()">Submit</button>
+          </div>
         </div>
       </div>
     </div>
+    <div id="p4" class="paper">
+      <div class="front">
+          <div id="f4" class="front-content kaagaz">
+              <div class="g-div">
+                <div class="g-output" id="response-div"></div>
+              </div>
+          </div>
+      </div>
+      <div class="back">
+          <div id="b4" class="back-content kaagaz">
+              <h1>Back 4</h1>
+          </div>
+      </div>
+  </div>
   </div>
 
   <!-- Next Button -->
@@ -133,6 +145,7 @@
     const paper1 = document.querySelector("#p1");
     const paper2 = document.querySelector("#p2");
     const paper3 = document.querySelector("#p3");
+    const paper4 = document.querySelector("#p4");
 
     // Event Listener
     prevBtn.addEventListener("click", goPrevPage);
@@ -140,7 +153,7 @@
 
     // Business Logic
     let currentLocation = 1;
-    let numOfPapers = 3;
+    let numOfPapers = 4;
     let maxLocation = numOfPapers + 1;
 
     function openBook() {
@@ -175,6 +188,10 @@
           case 3:
             paper3.classList.add("flipped");
             paper3.style.zIndex = 3;
+            break;
+          case 4:
+            paper4.classList.add("flipped");
+            paper4.style.zIndex = 4;
             closeBook(false);
             break;
           default:
@@ -190,16 +207,20 @@
           case 2:
             closeBook(true);
             paper1.classList.remove("flipped");
-            paper1.style.zIndex = 3;
+            paper1.style.zIndex = 4;
             break;
           case 3:
             paper2.classList.remove("flipped");
-            paper2.style.zIndex = 2;
+            paper2.style.zIndex = 3;
             break;
           case 4:
-            openBook();
             paper3.classList.remove("flipped");
-            paper3.style.zIndex = 1;
+            paper3.style.zIndex = 2;
+            break;
+          case 5:
+            openBook();
+            paper4.classList.remove("flipped");
+            paper4.style.zIndex = 1;
             break;
           default:
             throw new Error("unkown state");
@@ -264,7 +285,27 @@
       }
 
 
-    };
+    }
+    function sendText() {
+      // Get the value from the text box
+      var text = document.getElementById("text-box").value;
+
+      // Make a POST request to /generate_response
+      fetch('/generate_response', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: text }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Update the div with the response
+          document.getElementById("response-div").innerText = data.response;
+        });
+    }
+    
+    ;
     
   </script>
 </body>

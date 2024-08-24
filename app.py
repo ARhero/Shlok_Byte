@@ -77,6 +77,19 @@ def generate_gif():
         })
     else:
         return jsonify({'error': 'No matching verse found.'}), 404
-
+@app.route('/generate_response', methods=['POST'])
+def generate_response():
+    data = request.get_json()
+    print(data)
+    query = data.get('text')
+    print(query)
+    qa_prompt = "suggest a solution based on Bhagavad Gita. Also mention the related shloka in sanskrit and english if any. If the question is not related to life issues, then reply 'Sorry, I can only answer questions related to life, not related to (the category of question asked if not life)'. Generate the response and give one line gap after each line if any, dont use * and double quote .----------------"
+    input_text = qa_prompt + "\nUser question:\n" + query
+    
+    # Invoke the Gemini API
+    result = llm.invoke(input_text)
+    response_text = result.content
+    print(result.content)
+    return jsonify({'response': response_text})
 if __name__ == '__main__':
     app.run(debug=True)
