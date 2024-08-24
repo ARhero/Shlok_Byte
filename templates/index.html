@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+  <!-- <img src="src/grunge-background_196038-9787.jpg" class="background-img" alt="background"> -->
+  <!-- Previous Button -->
+  <button id="prev-btn">
+    <img class="btn-img" src="{{ url_for('static', filename='images/prev.png') }}" alt="previous" />
+  </button>
+
+  <!-- Book -->
+  <div id="book" class="book">
+    <!-- Paper 1 -->
+    <div id="p1" class="paper">
+      <div class="front">
+        <div id="f1" class="front-content">
+          <img src="" alt="frontpage" />
+        </div>
+      </div>
+      <div class="back">
+        <div id="b1" class="back-content kaagaz">
+          <div class="about">
+            <h1>About the Project</h1>
+            <h3>
+              <p>This project aims to convert the "shlokas" or verses of the famous book, Shrimad Bhagavad Gita, into
+                American Sign Language. The Bhagavad Gita, a revered text, offers profound wisdom and teachings that
+                have inspired countless individuals over the centuries. By translating these verses into American Sign
+                Language, we seek to bridge the gap between this timeless knowledge and the differently-abled section of
+                our community.
+              </p>
+              <p>Our goal is to ensure that everyone, regardless of their hearing abilities, can access and understand
+                the teachings of the Bhagavad Gita. Through this project, we strive to make spiritual and philosophical
+                knowledge more accessible and inclusive for all.
+              </p>
+            </h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Paper 2 -->
+    <div id="p2" class="paper">
+      <div class="front">
+        <div id="f2" class="front-content kaagaz">
+          
+        </div>
+      </div>
+      <div class="back">
+        <div id="b2" class="back-content kaagaz about" style="
+              height: 100%;
+              overflow: hidden;
+              width: 100%;
+              height: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            ">
+          <div class="downdrop">
+            <select class="options opone" id="chapterSelect" onchange="updateVerseDropdown()">
+              <option value="">Select Chapter</option>
+            </select>
+            <select class="options optwo" id="verseSelect">
+              <option value="">Select Verse</option>
+            </select>
+          </div>
+          <button id="convertToSignLanguage" class="crazy-btn">
+            Convert to Sign Language
+          </button>
+          <br /><br /><br /><br />
+        </div>
+      </div>
+    </div>
+    <!-- Paper 3 -->
+    <div id="p3" class="paper">
+      <div class="front">
+        <div id="f3" class="front-content kaagaz about-kaagaz gif-kaagaz">
+          <img class="gif-img" id="gifDisplay" src="" alt="Generated GIF" style="
+                max-width: 100%;
+                display: none;
+                z-index: -1;
+                position: absolute;
+                padding-top: 60px;
+              " />
+          <div class="phata-kaagaz" style="display: flex; justify-content: flex-end">
+
+            <div class="translation" style="
+                  z-index: 2;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: flex-end;
+                  padding: 30px;
+                ">
+              <div class="nichla-hissa">
+                <div id="sanskritDisplay"></div>
+                <br />
+                <div id="hindiDisplay"></div>
+                <br />
+                <div id="englishDisplay"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="back">
+        <div id="b3" class="back-content kaagaz">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Button -->
+  <button id="next-btn">
+    <img class="btn-img" src="{{ url_for('static', filename='images/next.png') }}" alt="next" />
+  </button>
+  <footer class="mentions">
+    
+  </footer>
+  <script>
+
+    // References to DOM Elements
+    const prevBtn = document.querySelector("#prev-btn");
+    const nextBtn = document.querySelector("#next-btn");
+    const book = document.querySelector("#book");
+
+    const paper1 = document.querySelector("#p1");
+    const paper2 = document.querySelector("#p2");
+    const paper3 = document.querySelector("#p3");
+
+    // Event Listener
+    prevBtn.addEventListener("click", goPrevPage);
+    nextBtn.addEventListener("click", goNextPage);
+
+    // Business Logic
+    let currentLocation = 1;
+    let numOfPapers = 3;
+    let maxLocation = numOfPapers + 1;
+
+    function openBook() {
+      book.style.transform = "translateX(50%)";
+      prevBtn.style.transform = "translateX(-240px)";
+      nextBtn.style.transform = "translateX(240px)";
+    }
+
+    function closeBook(isAtBeginning) {
+      if (isAtBeginning) {
+        book.style.transform = "translateX(0%)";
+      } else {
+        book.style.transform = "translateX(100%)";
+      }
+
+      prevBtn.style.transform = "translateX(0px)";
+      nextBtn.style.transform = "translateX(0px)";
+    }
+
+    function goNextPage() {
+      if (currentLocation < maxLocation) {
+        switch (currentLocation) {
+          case 1:
+            openBook();
+            paper1.classList.add("flipped");
+            paper1.style.zIndex = 1;
+            break;
+          case 2:
+            paper2.classList.add("flipped");
+            paper2.style.zIndex = 2;
+            break;
+          case 3:
+            paper3.classList.add("flipped");
+            paper3.style.zIndex = 3;
+            closeBook(false);
+            break;
+          default:
+            throw new Error("unkown state");
+        }
+        currentLocation++;
+      }
+    }
+
+    function goPrevPage() {
+      if (currentLocation > 1) {
+        switch (currentLocation) {
+          case 2:
+            closeBook(true);
+            paper1.classList.remove("flipped");
+            paper1.style.zIndex = 3;
+            break;
+          case 3:
+            paper2.classList.remove("flipped");
+            paper2.style.zIndex = 2;
+            break;
+          case 4:
+            openBook();
+            paper3.classList.remove("flipped");
+            paper3.style.zIndex = 1;
+            break;
+          default:
+            throw new Error("unkown state");
+        }
+
+        currentLocation--;
+      }
+    }
+
+
+
+
+    const chaptersAndVerses = {{ chapters_and_verses | tojson }};
+
+    window.onload = function () {
+      const chapterSelect = document.getElementById('chapterSelect');
+      const verseSelect = document.getElementById('verseSelect');
+
+      for (let chapter in chaptersAndVerses) {
+        let option = document.createElement('option');
+        option.value = chapter;
+        option.text = 'Chapter ' + chapter;
+        chapterSelect.appendChild(option);
+      }
+
+      chapterSelect.onchange = function () {
+        verseSelect.innerHTML = '<option value="">Select Verse</option>';
+        const chapter = chapterSelect.value;
+        if (chapter) {
+          let numVerses = chaptersAndVerses[chapter];
+          for (let i = 1; i <= numVerses; i++) {
+            let option = document.createElement('option');
+            option.value = i;
+            option.text = 'Verse ' + chapter + '.' + i;
+            verseSelect.appendChild(option);
+          }
+        }
+      };
+    };
+
+    document.getElementById('convertToSignLanguage').onclick = function () {
+      const chapter = document.getElementById('chapterSelect').value;
+      const verse = document.getElementById('verseSelect').value;
+
+      if (chapter && verse) {
+        fetch('/generate_gif', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ chapter: chapter, verse: verse }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('gifDisplay').src = data.gif_path;
+            document.getElementById('gifDisplay').style.display = 'block';
+            document.getElementById('sanskritDisplay').innerText = data.sanskrit_anuvad;
+            document.getElementById('hindiDisplay').innerText = data.hindi_anuvad;
+            document.getElementById('englishDisplay').innerText = data.english_translation;
+          }
+          )
+      }
+
+
+    };
+    
+  </script>
+</body>
+
+</html>
