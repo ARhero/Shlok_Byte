@@ -26,6 +26,22 @@ body {
   background-position: center;
 }
 
+.title {
+  font-size: 25px;
+}
+.voice-comms {
+  font-size: 15px;
+}
+
+.sign-lang-title {
+  font-size: 15px;
+  padding-bottom: 50px;
+}
+.gen-ai-title {
+  font-size: 15px;
+  padding-bottom: 60px;
+}
+
 /* Book */
 
 .about {
@@ -101,7 +117,7 @@ body {
 .options {
   outline: 0px;
   border-radius: 10px;
-  width: 10rem;
+  width: 12rem;
   height: 2rem;
   text-align: center;
   font-size: 0.8rem;
@@ -160,14 +176,6 @@ option {
   margin-bottom: 30px !important;
 }
 
-/* footer.mentions {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  position: absolute;
-  top: 38rem;
-  left: 78rem;
-} */
 
 footer {
   display: flex;

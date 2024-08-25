@@ -124,52 +124,15 @@ def record():
         print(chapter, verse)
         filtered_df = df[df['Verse'] == f"{chapter}.{verse}"]
         if not filtered_df.empty:
-            hindi_anuvad = filtered_df['English Translation'].values[0]
-            print(hindi_anuvad)
-            # TTS = default_tts()
-            # audio = TTS.synthesize(sanskrit_anuvad)
-            # # Export the audio as an MP3
-            # audio.export("sanskrit_speech.mp3")
-            # tts.text_to_speech(hindi_anuvad, debug=True, use_pronunciation_dict=True)
-            
-            
-
-            # CHUNK_SIZE = 1024
-            # url = "https://api.elevenlabs.io/v1/text-to-speech/Xb7hH8MSUJpSbSDYk0k2"
-
-            # headers = {
-            # "Accept": "audio/mpeg",
-            # "Content-Type": "application/json",
-            # "xi-api-key": "sk_b7bc80749463affef4827223df9088be1a7fc995d8ec5985"
-            # }
-
-            # data = {
-            # "text": hindi_anuvad,
-            # "model_id": "eleven_monolingual_v1",
-            # "voice_settings": {
-            #     "stability": 0.5,
-            #     "similarity_boost": 0.5
-            # }
-            # }
-
-            # response = requests.post(url, json=data, headers=headers)
-            # with open('output.mp3', 'wb') as f:
-            #     for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-            #         if chunk:
-            #             f.write(chunk)
-            words = hindi_anuvad.split(' ')
-            
-            with open('output.mp3', 'wb') as ff:
-                for word in words:
-                    # Detect the language of the text
-                    detected_language = detect_language(word)
-                    print(detected_language)
-                    gTTS(text=word, lang=detected_language, slow=False).write_to_fp(ff)
+            english_translation = filtered_df['English Translation'].values[0]
+            print(english_translation)
+            tts = gTTS(english_translation)
+            tts.save('output.mp3')
             with open("output.mp3", 'rb') as file:
                 audio_bytes = file.read()
                 audio_base64 = base64.b64encode(audio_bytes).decode()
             
-        return jsonify({'text': recognized_text,'audio_base64': audio_base64})
+        return jsonify({'text': recognized_text,'audio_base64': audio_base64,'english_translation': english_translation})
 
 @app.route('/generate_response', methods=['POST'])
 def generate_response():
@@ -177,7 +140,7 @@ def generate_response():
     print(data)
     query = data.get('text')
     print(query)
-    qa_prompt = "suggest a solution based on Bhagavad Gita. Also mention the related shloka in sanskrit and english if any. If the question is not related to life issues, then reply 'Sorry, I can only answer questions related to life, not related to (the category of question asked if not life)'. Generate the response and give one line gap after each line if any, dont use * and double quote .----------------"
+    qa_prompt = "suggest a solution based on Bhagavad Gita but dont use the word solution in your output, instead write something like - did you ever think about this perspective ?. Also mention the related shloka in sanskrit and english if any. If the question is not related to life issues, then reply 'Sorry, I can only answer questions related to life, not related to (the category of question asked if not life)'. Generate the response and give one line gap after each line if any, dont use * and double quote .Also, suggest a probable way out and tell the user its upto him or her to go on with this idea.----------------"
     input_text = qa_prompt + "\nUser question:\n" + query
     
     # Invoke the Gemini API

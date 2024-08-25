@@ -10,7 +10,6 @@
 </head>
 
 <body>
-  <!-- <img src="src/grunge-background_196038-9787.jpg" class="background-img" alt="background"> -->
   <!-- Previous Button -->
   <button id="prev-btn" class="nav-btn">
     <img class="btn-img" src="{{ url_for('static', filename='images/prev.png') }}" alt="previous" />
@@ -28,7 +27,7 @@
       <div class="back">
         <div id="b1" class="back-content kaagaz">
           <div class="about">
-            <h1>About the Project</h1>
+            <h1 class="title">About</h1>
             <br>
             <h3>
               <p>Our project supports individuals with various disabilities by offering features like ASL translation
@@ -45,10 +44,14 @@
     <!-- Paper 2 -->
     <div id="p2" class="paper">
       <div class="front">
-        <div id="f2" class="front-content kaagaz">
-          <h1>Speech to Text Converter</h1>
+        <div id="f2" class="front-content kaagaz about">
+          <h1 class="voice-comms">Effortlessly ask your questions with the power of voice commands!</h1>
+          <br>
           <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
+          <br>
           <p id="result"></p>
+          <br>
+          <audio controls id="audioPlayer" style="display: none;"></audio>
         </div>
       </div>
       <div class="back">
@@ -61,6 +64,7 @@
               justify-content: center;
               align-items: center;
             ">
+            <h1 class="sign-lang-title">Select your favorite verses from the timeless Bhagavad Gita and transform them into expressive sign language :</h1>
           <div class="downdrop">
             <select class="options opone" id="chapterSelect" onchange="updateVerseDropdown()">
               <option value="">Select Chapter</option>
@@ -111,6 +115,7 @@
       <div class="back">
         <div id="b3" class="back-content kaagaz">
           <div class="g-div">
+            <h1 class="gen-ai-title">Looking for guidance on life's journey? Let our AI provide the answers you seek!</h1>
             <input class="g-input" type="text" id="text-box" placeholder="Enter text" />
             <button class="g-btn" onclick="sendText()">Submit</button>
           </div>
@@ -329,36 +334,15 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById('result').innerText = 'Recognized Text: ' + data.text;
+          if (data.audio_base64) {
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioBlob = b64toBlob(data.audio_base64);
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audioPlayer.src = audioUrl;
+            audioPlayer.style.display = 'block';
+            audioPlayer.play();}
         })
         .catch(error => console.error('Error:', error));
-    }
-
-
-    function convertToSpeech() {
-      const inputText = document.getElementById('inputText').value;
-      fetch('/record', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          'text': inputText
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.audio_base64) {
-          const audioPlayer = document.getElementById('audioPlayer');
-          const audioBlob = b64toBlob(data.audio_base64);
-          const audioUrl = URL.createObjectURL(audioBlob);
-          audioPlayer.src = audioUrl;
-          audioPlayer.style.display = 'block';
-          audioPlayer.play();
-        }
-      })
-      .catch(error => {
-        //console.error('Error:', error);
-      });
     }
     
     function b64toBlob(base64) {
