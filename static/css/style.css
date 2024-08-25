@@ -20,7 +20,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(100, 68, 20);
+  background-image: url(../images/vintage-wallpaper-background.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -227,11 +227,16 @@ footer.mentions img {
 
 /* Controller Buttons */
 button {
-  border: none;
+  border: 2px solid #42311f ;
+  border-radius: 5px;
   background-color: transparent;
   cursor: pointer;
   margin: 10px;
   transition: transform 0.5s;
+}
+
+.nav-btn {
+  border: none !important;
 }
 
 button:focus {

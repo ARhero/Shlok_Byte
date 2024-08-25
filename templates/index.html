@@ -12,7 +12,7 @@
 <body>
   <!-- <img src="src/grunge-background_196038-9787.jpg" class="background-img" alt="background"> -->
   <!-- Previous Button -->
-  <button id="prev-btn">
+  <button id="prev-btn" class="nav-btn">
     <img class="btn-img" src="{{ url_for('static', filename='images/prev.png') }}" alt="previous" />
   </button>
 
@@ -22,7 +22,7 @@
     <div id="p1" class="paper">
       <div class="front">
         <div id="f1" class="front-content">
-          <img src="" alt="frontpage" />
+          <img src="{{ url_for('static', filename='images/front-page.jpg') }}" alt="frontpage" />
         </div>
       </div>
       <div class="back">
@@ -31,9 +31,12 @@
             <h1>About the Project</h1>
             <br>
             <h3>
-              <p>Our project supports individuals with various disabilities by offering features like ASL translation for those with hearing or speaking impairments, speech-to-text and text-to-speech for vision impairments, and the OpenDyslexic font for readers with dyslexia. Additionally, it includes a generative AI feature that provides guidance, drawing from documents such as the Bhagavad Gita.
+              <p>Our project supports individuals with various disabilities by offering features like ASL translation
+                for those with hearing or speaking impairments, speech-to-text and text-to-speech for vision
+                impairments, and the OpenDyslexic font for readers with dyslexia. Additionally, it includes a generative
+                AI feature that provides guidance, drawing from documents such as the Bhagavad Gita.
               </p>
-              
+
             </h3>
           </div>
         </div>
@@ -43,7 +46,9 @@
     <div id="p2" class="paper">
       <div class="front">
         <div id="f2" class="front-content kaagaz">
-          
+          <h1>Speech to Text Converter</h1>
+          <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
+          <p id="result"></p>
         </div>
       </div>
       <div class="back">
@@ -114,26 +119,26 @@
     </div>
     <div id="p4" class="paper">
       <div class="front">
-          <div id="f4" class="front-content kaagaz">
-              <div class="g-div">
-                <div class="g-output" id="response-div"></div>
-              </div>
+        <div id="f4" class="front-content kaagaz">
+          <div class="g-div">
+            <div class="g-output" id="response-div"></div>
           </div>
+        </div>
       </div>
       <div class="back">
-          <div id="b4" class="back-content kaagaz">
-              <h1>Back 4</h1>
-          </div>
+        <div id="b4" class="back-content kaagaz">
+          <img src="{{ url_for('static', filename='images/back-page.jpg') }}" alt="backpage" />
+        </div>
       </div>
-  </div>
+    </div>
   </div>
 
   <!-- Next Button -->
-  <button id="next-btn">
+  <button id="next-btn" class="nav-btn">
     <img class="btn-img" src="{{ url_for('static', filename='images/next.png') }}" alt="next" />
   </button>
   <footer class="mentions">
-    
+
   </footer>
   <script>
 
@@ -304,9 +309,70 @@
           document.getElementById("response-div").innerText = data.response;
         });
     }
+
+    let recording = false;
+
+    function toggleRecording() {
+      const button = document.getElementById('recordButton');
+      recording = !recording;
+
+      if (recording) {
+        button.innerText = 'Stop Recording';
+        startRecording();
+      } else {
+        button.innerText = 'Start Recording';
+      }
+    }
+
+    function startRecording() {
+      fetch('/record', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('result').innerText = 'Recognized Text: ' + data.text;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+
+    function convertToSpeech() {
+      const inputText = document.getElementById('inputText').value;
+      fetch('/record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'text': inputText
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.audio_base64) {
+          const audioPlayer = document.getElementById('audioPlayer');
+          const audioBlob = b64toBlob(data.audio_base64);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPlayer.src = audioUrl;
+          audioPlayer.style.display = 'block';
+          audioPlayer.play();
+        }
+      })
+      .catch(error => {
+        //console.error('Error:', error);
+      });
+    }
     
+    function b64toBlob(base64) {
+      const byteString = atob(base64);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: 'audio/mpeg' });
+    }
+
     ;
-    
+
   </script>
 </body>
 

@@ -7,12 +7,18 @@ import cv2
 import numpy as np
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
+import speech_recognition as sr
+from gtts import gTTS
+import base64
+from googletrans import Translator
 
 app = Flask(__name__)
 
 load_dotenv(dotenv_path=".env")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 os.environ['GOOGLE_API_KEY'] = GOOGLE_API_KEY
+
+recognizer = sr.Recognizer()
 
 csv_file = 'data/book.csv'
 df = pd.read_csv(csv_file, dtype={'Verse': str})
@@ -47,6 +53,26 @@ def func(text):
     all_frames[0].save(final_gif_path, save_all=True, append_images=all_frames[1:], duration=100, loop=0)
     return final_gif_path
 
+# Function to detect the language of the given text
+def detect_language(text):
+    translator = Translator()
+    detected_lang = translator.detect(text).lang
+    return detected_lang
+
+def recognize_speech():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio_data = recognizer.listen(source)
+        print("Recognizing...")
+        try:
+            text = recognizer.recognize_google(audio_data)
+            return text
+        except sr.UnknownValueError:
+            return "Sorry, I could not understand the audio."
+        except sr.RequestError:
+            return "Sorry, the service is down."
+
 @app.route('/')
 def index():
     chapters = df['Chapter'].unique().tolist()
@@ -77,6 +103,74 @@ def generate_gif():
         })
     else:
         return jsonify({'error': 'No matching verse found.'}), 404
+    
+@app.route('/record', methods=['POST'])
+def record():
+    if request.method == 'POST':
+        recognized_text = recognize_speech()
+        ch_num_prompt = "Extract the chapter number from the following text."
+        ch_num_output_prompt = "Expected Output: <chapter_number> "
+        ver_num_prompt = "Extract the verse number from the following text."
+        ver_num_output_prompt = "Expected Output: <verse_number>"
+        text_prompt = f"Text: {recognized_text}"
+
+        ch_prompt = ch_num_prompt + "\n" + text_prompt + "\n" + ch_num_output_prompt
+        ver_prompt = ver_num_prompt + "\n" + text_prompt + "\n" + ver_num_output_prompt
+        
+        result = llm.invoke(ch_prompt)
+        chapter = result.content
+        result = llm.invoke(ver_prompt)
+        verse = result.content
+        print(chapter, verse)
+        filtered_df = df[df['Verse'] == f"{chapter}.{verse}"]
+        if not filtered_df.empty:
+            hindi_anuvad = filtered_df['English Translation'].values[0]
+            print(hindi_anuvad)
+            # TTS = default_tts()
+            # audio = TTS.synthesize(sanskrit_anuvad)
+            # # Export the audio as an MP3
+            # audio.export("sanskrit_speech.mp3")
+            # tts.text_to_speech(hindi_anuvad, debug=True, use_pronunciation_dict=True)
+            
+            
+
+            # CHUNK_SIZE = 1024
+            # url = "https://api.elevenlabs.io/v1/text-to-speech/Xb7hH8MSUJpSbSDYk0k2"
+
+            # headers = {
+            # "Accept": "audio/mpeg",
+            # "Content-Type": "application/json",
+            # "xi-api-key": "sk_b7bc80749463affef4827223df9088be1a7fc995d8ec5985"
+            # }
+
+            # data = {
+            # "text": hindi_anuvad,
+            # "model_id": "eleven_monolingual_v1",
+            # "voice_settings": {
+            #     "stability": 0.5,
+            #     "similarity_boost": 0.5
+            # }
+            # }
+
+            # response = requests.post(url, json=data, headers=headers)
+            # with open('output.mp3', 'wb') as f:
+            #     for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            #         if chunk:
+            #             f.write(chunk)
+            words = hindi_anuvad.split(' ')
+            
+            with open('output.mp3', 'wb') as ff:
+                for word in words:
+                    # Detect the language of the text
+                    detected_language = detect_language(word)
+                    print(detected_language)
+                    gTTS(text=word, lang=detected_language, slow=False).write_to_fp(ff)
+            with open("output.mp3", 'rb') as file:
+                audio_bytes = file.read()
+                audio_base64 = base64.b64encode(audio_bytes).decode()
+            
+        return jsonify({'text': recognized_text,'audio_base64': audio_base64})
+
 @app.route('/generate_response', methods=['POST'])
 def generate_response():
     data = request.get_json()
